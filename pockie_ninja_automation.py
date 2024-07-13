@@ -78,7 +78,7 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch(headless=self.headless)
+                self.browser = self.p.firefox.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
@@ -244,6 +244,7 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
         self.headless = headless
         self.flag_first_time = True
         self.count_fight = 0
+        self.win_fight = 0
         self.area_name = area_name
         self.mob_name = mob_name
         self.mob_to_farm = ""
@@ -311,7 +312,7 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch(headless=self.headless)
+                self.browser = self.p.firefox.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
@@ -325,7 +326,7 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
                     time.sleep(WINDOW_WAIT_STANDARD_DELAY)
                     self.start_farm()
                     self.count_fight += 1
-                    print(f"FIGHT NUMBER: {self.count_fight}")
+                    print(f"FIGHT NUMBER: {self.count_fight} ({self.win_fight} WIN)")
                     print("RESTARTING MACRO...")
         except (Exception) as e:
             print("EXCEPTION: ", e)
@@ -382,8 +383,6 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
             if self.page.locator("Boss Ticket Lv. {self.boss_lvl}").count() > 0:
                 break
 
-
-
     def start_farm(self):
         ## CHECK IF MOB TO FARM IS A BOSS:
         if "BOSS" in self.mob_name:
@@ -394,6 +393,9 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
             while True:
                 if self.page.get_by_text("Close").count() > 0:
                     time.sleep(WINDOW_WAIT_STANDARD_DELAY)
+                    char_hp = self.page.locator("div[class='fight__stat-value']").nth(0).text_content()
+                    if int(char_hp.split(" ")[0]) > 0:
+                        self.win_fight += 1
                     self.page.get_by_text("Close").click()
                     break
 
@@ -405,6 +407,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
         self.headless = headless
         self.flag_first_time = True
         self.count_fight = 0
+        self.win_fight = 0
         self.area_name = CROSSROADS_AREA_NAME
         self.set_src_variables()
 
@@ -416,7 +419,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch(headless=self.headless)
+                self.browser = self.p.firefox.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
@@ -429,7 +432,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
                     time.sleep(WINDOW_WAIT_STANDARD_DELAY)
                     self.start_farm()
                     self.count_fight += 1
-                    print(f"FIGHT NUMBER: {self.count_fight}")
+                    print(f"FIGHT NUMBER: {self.count_fight}  ({self.win_fight} WIN)")
                     print("RESTARTING MACRO...")
         except (Exception) as e:
             print("EXCEPTION: ", e)
@@ -462,6 +465,9 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
         ## CHECK IF CANVAS BATLLE STILL OPEN
         while (try_count < max_tries):
             if (self.page.get_by_role("button", name="Close").count() > 0):
+                char_hp = self.page.locator("div[class='fight__stat-value']").nth(0).text_content()
+                if int(char_hp.split(" ")[0]) > 0:
+                    self.win_fight += 1
                 self.page.get_by_role("button", name="Close").click()
                 break
             time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
