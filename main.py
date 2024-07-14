@@ -9,7 +9,7 @@ from src import *
 VALHALLA_FARM_WINDOW_SIZE="320x200"
 STANDARD_AREA_FARM_WINDOW_SIZE ="340x200"
 SLOT_MACHINE_FARM_WINDOW_SIZE="320x140"
-MAIN_MENU_WINDOW_SIZE="200x180"
+MAIN_MENU_WINDOW_SIZE="180x120"
 STANDARD_PADDING_X=15
 STANDARD_PADDING_Y=3
 
@@ -42,7 +42,7 @@ class MainMenu(tk.Frame):
         self.regular_area_button = ttk.Button(self.master, text="Regular Area Farm", command=self.on_regular_area_button_click)
 
         self.valhalla_farm_button.grid(row=0, column=0)
-        self.slot_machine_farm_button.grid(row=1, column=0, pady=25)
+        self.slot_machine_farm_button.grid(row=1, column=0)
         self.regular_area_button.grid(row=2, column=0)
 
 

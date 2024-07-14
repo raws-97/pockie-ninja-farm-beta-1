@@ -1,4 +1,5 @@
 from playwright.sync_api import sync_playwright, TimeoutError
+from datetime import datetime
 import time
 import requests
 from src import *
@@ -408,6 +409,8 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
         self.flag_first_time = True
         self.count_fight = 0
         self.win_fight = 0
+        self.start_farm_time = ""
+        self.start_fight_time = ""
         self.area_name = CROSSROADS_AREA_NAME
         self.set_src_variables()
 
@@ -428,12 +431,14 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
                 self.close_fight_page()
                 self.close_interface()
                 self.check_if_on_cross_road()
+                self.start_farm_time = datetime.now().strftime('%H:%M:%S')
                 while True:
                     time.sleep(WINDOW_WAIT_STANDARD_DELAY)
                     self.start_farm()
                     self.count_fight += 1
                     print(f"FIGHT NUMBER: {self.count_fight}  ({self.win_fight} WIN)")
-                    print("RESTARTING MACRO...")
+                    self.calculate_fight_time()
+                    self.calculate_total_time()
         except (Exception) as e:
             print("EXCEPTION: ", e)
             if "Timeout" in str(e):
@@ -453,6 +458,28 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
                 self.page.mouse.move(i, map_canva_box["y"] + (map_canva_box["height"]*self.height_multiplier))
             print("ENTERING CROSS ROAD...")
             self.page.mouse.click(i, map_canva_box["y"] + (map_canva_box["height"]*self.height_multiplier))
+    
+    def calculate_fight_time(self):
+        started_fight_time = self.start_fight_time
+        completed_fight_time = datetime.now().strftime('%H:%M:%S')
+
+        delta = datetime.strptime(completed_fight_time, "%H:%M:%S") - datetime.strptime(started_fight_time, "%H:%M:%S")
+        minutes = delta.seconds // 60
+        seconds = delta.seconds % 60
+
+        print(f"FIGHT COMPLETED IN {minutes}:{seconds}")
+    
+    def calculate_total_time(self):
+        started_farm_time = self.start_farm_time
+        current_time = datetime.now().strftime('%H:%M:%S')
+
+        delta = datetime.strptime(current_time, "%H:%M:%S") - datetime.strptime(started_farm_time, "%H:%M:%S")
+
+        hours = delta.seconds // 3600
+        minutes = delta.seconds // 60
+        seconds = delta.seconds % 60
+
+        print(f"FARM RUNNING FOR {hours}:{minutes}:{seconds} ({datetime.strptime(current_time, '%H:%M:%S').time()})")
 
     def start_farm(self):
         max_tries = MAX_SLOT_MACHINE_TRIES
@@ -462,6 +489,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
         if self.page.locator(f"img[{SLOT_MACHINE_FRAME_OPEN}]").count() == 0:
             self.page.locator(f"img[{SLOT_MACHINE_ICON_SRC}]").click()        
         self.page.get_by_text("Challenge").click()
+        self.start_fight_time = datetime.now().strftime('%H:%M:%S')
         ## CHECK IF CANVAS BATLLE STILL OPEN
         while (try_count < max_tries):
             if (self.page.get_by_role("button", name="Close").count() > 0):
