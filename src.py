@@ -103,4 +103,7 @@ VALHALLA_LEGEND_BOX_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceans
 
 ##SCROLL
 BAG_ICON_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/features/bottom-menu/11-1.png'"
+C_RANK_SCROL_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/tasks/master/29.png'"
+B_RANK_SCROL_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/tasks/master/36.png'"
+A_RANK_SCROL_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/tasks/master/37.png'"
 S_RANK_SCROLL_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/tasks/master/38.png'"

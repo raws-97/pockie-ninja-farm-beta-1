@@ -7,9 +7,10 @@ import threading
 from src import *
 
 VALHALLA_FARM_WINDOW_SIZE="320x200"
+SCROLL_BOT_WINDOW_SIZE="320x170"
 STANDARD_AREA_FARM_WINDOW_SIZE ="340x200"
 SLOT_MACHINE_FARM_WINDOW_SIZE="320x140"
-MAIN_MENU_WINDOW_SIZE="180x120"
+MAIN_MENU_WINDOW_SIZE="180x170"
 STANDARD_PADDING_X=15
 STANDARD_PADDING_Y=3
 
@@ -40,10 +41,12 @@ class MainMenu(tk.Frame):
         self.valhalla_farm_button = ttk.Button(self.master, text="Valhalla Farm", command=self.on_valhalla_farm_button_click)
         self.slot_machine_farm_button = ttk.Button(self.master, text="Slot Machine Farm", command=self.on_slot_machine_farm_button_click)
         self.regular_area_button = ttk.Button(self.master, text="Regular Area Farm", command=self.on_regular_area_button_click)
+        self.scroll_opener_button = ttk.Button(self.master, text="Open Scroll", command=self.on_scroll_opener_button_click)
 
         self.valhalla_farm_button.grid(row=0, column=0)
         self.slot_machine_farm_button.grid(row=1, column=0)
         self.regular_area_button.grid(row=2, column=0)
+        self.scroll_opener_button.grid(row=3, column=0)
 
 
     def on_valhalla_farm_button_click(self):
@@ -70,6 +73,15 @@ class MainMenu(tk.Frame):
         self.master.destroy()
         root = tk.Tk()
         app = StandardAreaFarm(master=root)
+        ## STYLE USING TKINTER TTK
+        set_style()
+        
+        app.mainloop()
+    
+    def on_scroll_opener_button_click(self):
+        self.master.destroy()
+        root = tk.Tk()
+        app = ScrollOpenerBot(master=root)
         ## STYLE USING TKINTER TTK
         set_style()
         
@@ -400,6 +412,99 @@ class StandardAreaFarm(tk.Frame):
 
     def create_and_run_bot(self, username, password, area_name, mob_name, headless):
         bot = PockieNinjaStandardAreaFarm(username, password, area_name, mob_name, headless=headless)
+        self.bots.append(bot)
+        check_exit_success = bot.main_loop()
+        return check_exit_success
+
+class ScrollOpenerBot(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        self.master.title("Pockie Ninja Bot - Scroll Opener")
+        self.master.geometry(SCROLL_BOT_WINDOW_SIZE)
+        self.master.resizable(False, False)
+        self.create_widgets()
+        self.bots = []
+        self.threads = []
+        center(self.master)
+
+
+    def create_widgets(self):
+        self.username_label = ttk.Label(self.master, text="Username:")
+        self.username_entry = ttk.Entry(self.master)
+        self.password_label = ttk.Label(self.master, text="Password:")
+        self.password_entry = ttk.Entry(self.master, show="*")
+        ## SET DUNGEON LEVEL AS A OPTION MENU
+        self.scroll_rank_options = ["C", "B", "A", "S"]
+        self.scroll_rank_label = ttk.Label(self.master, text="Scroll Rank:")
+        self.scroll_rank_str_var = tk.StringVar()
+        self.scroll_rank_str_var.set(self.scroll_rank_options[0])
+        self.scroll_rank_option_menu = tk.OptionMenu(self.master, self.scroll_rank_str_var , *self.scroll_rank_options)
+        ## ADD A CHECKBOX IF YOU WANT TO RUN THE BOT IN HEADLESS MODE
+        self.headless_var = tk.IntVar()
+        self.headless_label = ttk.Label(self.master, text="Headless (No Browser):")
+        self.headless_checkbox = ttk.Checkbutton(self.master, variable=self.headless_var)
+        self.start_button = ttk.Button(self.master, text="Start", command=self.on_start_button_click)
+        self.back_to_main_menu_button = ttk.Button(self.master, text="Back to Main Menu", command=self.back_to_main_menu)
+
+        self.username_label.grid(row=0, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.username_entry.grid(row=0, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_label.grid(row=1, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_entry.grid(row=1, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.scroll_rank_label.grid(row=2, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.scroll_rank_option_menu.grid(row=2, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_checkbox.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.start_button.grid(row=5, column=0, pady=STANDARD_PADDING_Y)
+        self.back_to_main_menu_button.grid(row=5, column=1, pady=STANDARD_PADDING_Y)
+
+
+    def back_to_main_menu(self):
+        self.master.destroy()
+        root = tk.Tk()
+        app = MainMenu(master=root)
+        set_style()
+        app.mainloop()
+
+
+    def on_start_button_click(self):
+        new_thread = threading.Thread(target=self.start_bot, daemon=True)
+        self.threads.append(new_thread)
+        new_thread.start()
+
+
+    def start_bot(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        scroll_rank = self.scroll_rank_option_menu.cget("text")
+        headless = self.headless_var.get()
+
+        if headless == 1:
+            headless = True
+        else:
+            headless = False
+
+        if username == "" or password == "":
+            messagebox.showwarning("Warning", "Please fill all the fields")
+        else:
+            messagebox.showinfo("Info", "Checking Your Credentials...\nPlease wait for a moment!")
+            check_credentials_bot = CheckLoginCredentials(username, password)
+            is_invalid, case = check_credentials_bot.check_credentials()
+            if is_invalid:
+                if case == 'logedin':
+                    messagebox.showwarning("Warning", "Invalid Credentials!\nThis account is already logged in!")
+                if case == 'password':
+                    messagebox.showwarning("Warning", "Invalid Credentials!\nUsername or Password is incorrect!")
+                return
+            
+            messagebox.showinfo("Info", "Valid Credentials!\nStarting Bot!")
+            check_exit_success = self.create_and_run_bot(username, password, scroll_rank, headless)
+            while not check_exit_success:
+                check_exit_success = self.create_and_run_bot(username, password, scroll_rank, headless)
+    
+
+    def create_and_run_bot(self, username, password, scroll_rank, headless):
+        bot = PockieNinjaScrollOpener(username, password, scroll_rank, headless)
         self.bots.append(bot)
         check_exit_success = bot.main_loop()
         return check_exit_success

@@ -515,20 +515,23 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
         
 
 ################################################################################################################################
-## DO NOT USE IT NOW. NOT FIXED YET.
 class PockieNinjaScrollOpener(PockieNinjaFarmBot):
-    def __init__(self, username, password, headless):
+    def __init__(self, username, password, scroll_rank, headless):
         self.username = username
         self.password = password
         self.headless = headless
+        self.scroll_rank = scroll_rank
         self.flag_first_time = True
-        self.area_name = CROSSROADS_AREA_NAME
-        self.set_src_variables()
 
-    def set_src_variables(self):
-        self.width_multiplier = CROSSROADS_WIDTH_MULTIPLIER
-        self.height_multiplier = CROSSROADS_HEIGHT_MULTIPLIER
-        self.bg_src = CROSSROADS_BG_SRC
+        if self.scroll_rank == "C":
+            self.scroll_src = C_RANK_SCROL_SRC
+        elif self.scroll_rank == "B":
+            self.scroll_src = B_RANK_SCROL_SRC
+        elif self.scroll_rank == "A":
+            self.scroll_src = A_RANK_SCROL_SRC
+        elif self.scroll_rank == "S":
+            self.scroll_src = S_RANK_SCROLL_SRC
+        
 
     def main_loop(self):
         try:
@@ -541,8 +544,7 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
                 self.relog()
                 self.close_fight_page()
                 self.close_interface()
-                while True:
-                    self.start_farm()
+                self.start_opening_scroll()
         except (Exception) as e:
             print("EXCEPTION: ", e)
             if "Timeout" in str(e):
@@ -551,20 +553,24 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
             else:
                 return True
 
-    def start_farm(self):
-        ## CHECK IF SLOT BAG STILL OPEN
+    def start_opening_scroll(self):
+        ## CHECK IF BAG IS OPEN
         if self.page.get_by_text("Inventory").count() == 0:
-            self.page.locator(f"img[{BAG_ICON_SRC}]").click()        
+            self.page.locator(f"img[{BAG_ICON_SRC}]").click()      
+
         ## CHECK IF SCROLL STILL EXISTS
-        while self.page.locator(f"img[{S_RANK_SCROLL_SRC}]").count() > 0:
+        while self.page.locator(f"img[{self.scroll_src}]").count() > 0:
             if (self.page.get_by_role("button", name="Close").count() > 0):
                 self.page.get_by_role("button", name="Close").click()
-            self.page.locator(f"img[{S_RANK_SCROLL_SRC}]").locator("..").click(button="right")
+            self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
             time.sleep(0.2)
             self.page.get_by_text("Use").click()
             time.sleep(0.3)
 
-            if self.page.locator(f"img[{S_RANK_SCROLL_SRC}]").count() == 0:
+            if self.page.locator(f"img[{self.scroll_src}]").count() == 0:
+                print(f"All {self.scroll_rank} Scroll Opened")
+                print(f"Closing the browsers.")
+                self.page.close()
                 break 
 
 ################################################################################################################################
