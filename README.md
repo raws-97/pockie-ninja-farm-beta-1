@@ -15,5 +15,3 @@ Watch our YouTube video to see the bot in action. Click on the image below to vi
 For more updates and detailed videos, please refer to the PockieNinja Playlist on our YouTube channel.
 
 ---
-
-Feel free to copy and use this updated version for your GitHub README!
