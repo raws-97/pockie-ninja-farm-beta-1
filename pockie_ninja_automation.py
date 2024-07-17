@@ -474,9 +474,9 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
     
     def calculate_total_time(self):
         started_farm_time = self.start_farm_time
-        current_time = datetime.now().strftime('%H:%M:%S')
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        delta = datetime.strptime(current_time, "%H:%M:%S") - datetime.strptime(started_farm_time, "%H:%M:%S")
+        delta = datetime.strptime(current_time, "%Y-%m-%d  %H:%M:%S") - datetime.strptime(started_farm_time, "%Y-%m-%d %H:%M:%S")
         total_seconds = delta.total_seconds()
 
         hours = int(total_seconds // 3600)
@@ -487,7 +487,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
         minutes = f"{minutes:02}"
         seconds = f"{seconds:02}"
 
-        print(f"FARM RUNNING FOR {hours}:{minutes}:{seconds} ({datetime.strptime(current_time, '%H:%M:%S').time()})")
+        print(f"FARM RUNNING FOR {hours}:{minutes}:{seconds} ({datetime.strptime(current_time, '%Y-%m-%d %H:%M:%S').time()})")
 
     def start_farm(self):
         max_tries = MAX_SLOT_MACHINE_TRIES
