@@ -79,7 +79,7 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.firefox.launch(headless=self.headless)
+                self.browser = self.p.chromium.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
@@ -207,8 +207,6 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
         nth_instance = self.page.locator(f"img[{self.battle_icon}]")
         nth_instance.nth(nth_element).click()
         while (try_count < max_tries):
-            print("WAITING FOR THE FIGHT TO END...")
-            print("TRY NUMBER: ", try_count+1, " OUT OF ", max_tries)
             if (self.page.get_by_role("button", name="Close").count() > 0):
                 self.page.get_by_role("button", name="Close").click()
                 break
@@ -313,7 +311,7 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.firefox.launch(headless=self.headless)
+                self.browser = self.p.chromium.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
@@ -422,7 +420,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.firefox.launch(headless=self.headless)
+                self.browser = self.p.chromium.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
@@ -464,8 +462,13 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
         completed_fight_time = datetime.now().strftime('%H:%M:%S')
 
         delta = datetime.strptime(completed_fight_time, "%H:%M:%S") - datetime.strptime(started_fight_time, "%H:%M:%S")
-        minutes = delta.seconds // 60
-        seconds = delta.seconds % 60
+        total_seconds = delta.total_seconds()
+        
+        minutes = int((total_seconds % 3600) // 60)
+        seconds = int(total_seconds % 60)
+
+        minutes = f"{minutes:02}"
+        seconds = f"{seconds:02}"
 
         print(f"FIGHT COMPLETED IN {minutes}:{seconds}")
     
@@ -474,10 +477,15 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
         current_time = datetime.now().strftime('%H:%M:%S')
 
         delta = datetime.strptime(current_time, "%H:%M:%S") - datetime.strptime(started_farm_time, "%H:%M:%S")
+        total_seconds = delta.total_seconds()
 
-        hours = delta.seconds // 3600
-        minutes = delta.seconds // 60
-        seconds = delta.seconds % 60
+        hours = int(total_seconds // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+        seconds = int(total_seconds % 60)
+
+        hours = f"{hours:02}"
+        minutes = f"{minutes:02}"
+        seconds = f"{seconds:02}"
 
         print(f"FARM RUNNING FOR {hours}:{minutes}:{seconds} ({datetime.strptime(current_time, '%H:%M:%S').time()})")
 
@@ -505,6 +513,59 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
             self.page.close()
         time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
         
+
+################################################################################################################################
+## DO NOT USE IT NOW. NOT FIXED YET.
+class PockieNinjaScrollOpener(PockieNinjaFarmBot):
+    def __init__(self, username, password, headless):
+        self.username = username
+        self.password = password
+        self.headless = headless
+        self.flag_first_time = True
+        self.area_name = CROSSROADS_AREA_NAME
+        self.set_src_variables()
+
+    def set_src_variables(self):
+        self.width_multiplier = CROSSROADS_WIDTH_MULTIPLIER
+        self.height_multiplier = CROSSROADS_HEIGHT_MULTIPLIER
+        self.bg_src = CROSSROADS_BG_SRC
+
+    def main_loop(self):
+        try:
+            with sync_playwright() as self.p:
+                self.browser = self.p.chromium.launch(headless=self.headless)
+                print("OPENED BROWSER")
+                self.page = self.browser.new_page()
+                self.page.goto("https://pockieninja.online/")
+                print("OPENED LINK")
+                self.relog()
+                self.close_fight_page()
+                self.close_interface()
+                while True:
+                    self.start_farm()
+        except (Exception) as e:
+            print("EXCEPTION: ", e)
+            if "Timeout" in str(e):
+                print("TimeoutError")
+                return False
+            else:
+                return True
+
+    def start_farm(self):
+        ## CHECK IF SLOT BAG STILL OPEN
+        if self.page.get_by_text("Inventory").count() == 0:
+            self.page.locator(f"img[{BAG_ICON_SRC}]").click()        
+        ## CHECK IF SCROLL STILL EXISTS
+        while self.page.locator(f"img[{S_RANK_SCROLL_SRC}]").count() > 0:
+            if (self.page.get_by_role("button", name="Close").count() > 0):
+                self.page.get_by_role("button", name="Close").click()
+            self.page.locator(f"img[{S_RANK_SCROLL_SRC}]").locator("..").click(button="right")
+            time.sleep(0.2)
+            self.page.get_by_text("Use").click()
+            time.sleep(0.3)
+
+            if self.page.locator(f"img[{S_RANK_SCROLL_SRC}]").count() == 0:
+                break 
 
 ################################################################################################################################
 ################################################################################################################################
