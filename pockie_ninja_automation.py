@@ -61,14 +61,16 @@ class PockieNinjaFarmBot:
 ################################################################################################################################
 ################################################################################################################################
 class PockieNinjaValhallaBot(PockieNinjaFarmBot):
-    def __init__(self, username, password, dungeon_lvl, difficulty, headless):
+    def __init__(self, username, password, dungeon_lvl, difficulty, legend_box, headless):
         self.dungeon_lvl = dungeon_lvl
         self.difficulty = difficulty
         self.username = username
         self.password = password
         self.headless = headless
+        self.legend_box = legend_box
         self.flag_first_time = True
         self.count_fight = 0
+        self.stone = 0
         self.fight_num = ""
         self.castle_menu = ""
         self.begin_btn = ""
@@ -88,6 +90,7 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
                 self.relog()
                 while True:
                     ## PICK CARD AFTER RESET (YES, THIS IS SUPPOSED TO BE HERE, OTHERWISE, IF INTERFACE SHOWS UP BEHING CARDS, I WILL GENERATE AN INFINITE LOOP, THIS IS A QUICK SOLUTION)
+                    self.stone = int(self.page.locator('pre').nth(1).text_content())
                     self.pick_card_after_reset()
                     self.close_fight_page()
                     self.close_interface()
@@ -140,15 +143,35 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
             print("ENTERING VALHALLA...")
             self.page.mouse.click(valhalla_encampment["x"] + valhalla_encampment["width"]/2, i)
             self.page.get_by_text("Enter Valhalla").click()
-    
+        
     def pick_card_after_reset(self):
         time.sleep(WINDOW_WAIT_STANDARD_DELAY*3)
         if self.page.locator(f"img[{CARD_IMG_SRC}]").count() > 0:
             print("PICKING LEFTOVER CARDS (OBS: LEFT FROM PREVIOUS SESSION)")
-            self.page.locator(f"img[{CARD_IMG_SRC}]").nth(-1).click()
+
+            minimum_stone = 50000
+
+            if self.legend_box and self.difficulty_src != NORMAL_VALHALLA_DIFFICULTY and self.dungeon_lvl < 16:
+                print("You need to take at least dungeon level 16 and normal difficulty.")
+
+            if self.legend_box and self.stone < minimum_stone:
+                print("Your stone is less than 50k")
+
+            if self.legend_box and self.stone >= minimum_stone:
+                for card in range(5):
+                    self.page.get_by_text("Look").nth(0).click()
+                    self.page.get_by_text("Accept").click()
+
+                    if self.page.locator(f"img[{VALHALLA_LEGEND_BOX_SRC}]").count() > 0:
+                        self.page.locator(f"img[{CARD_IMG_SRC}]").locator('..').nth(card).click(position={"x": 15, "y": 15})
+                        time.sleep(WINDOW_WAIT_STANDARD_DELAY)
+                        self.page.get_by_text("Collect").click()
+                        print("You get legend box set")
+                        return
+
+            self.page.locator(f"img[{CARD_IMG_SRC}]").locator('..').nth(0).click(position={"x": 15, "y": 15})
             time.sleep(WINDOW_WAIT_STANDARD_DELAY)
-            if self.page.get_by_text("Collect").count() > 0:
-                self.page.get_by_text("Collect").click()
+            self.page.get_by_text("Collect").click()
 
     def open_valhalla(self):
         castle = self.page.locator(f"img[{self.castle_menu}]").bounding_box()
@@ -204,6 +227,7 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
             self.page.click(f"img[{self.battle_select_instance}]")
         print("ENTERING BATTLE...") 
         ## ENTERING BATTLE
+        time.sleep(WINDOW_WAIT_STANDARD_DELAY)
         nth_instance = self.page.locator(f"img[{self.battle_icon}]")
         nth_instance.nth(nth_element).click()
         while (try_count < max_tries):
@@ -559,13 +583,14 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
             self.page.locator(f"img[{BAG_ICON_SRC}]").click()      
 
         ## CHECK IF SCROLL STILL EXISTS
-        while self.page.locator(f"img[{self.scroll_src}]").count() > 0:
-            if (self.page.get_by_role("button", name="Close").count() > 0):
-                self.page.get_by_role("button", name="Close").click()
-            self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
-            time.sleep(0.2)
-            self.page.get_by_text("Use").click()
-            time.sleep(0.3)
+        while True:
+            if self.page.locator(f"img[{self.scroll_src}]").count() > 0:
+                if (self.page.get_by_role("button", name="Close").count() > 0):
+                    self.page.get_by_role("button", name="Close").click()
+                self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
+                time.sleep(0.2)
+                self.page.get_by_text("Use").click()
+                time.sleep(0.3)
 
             if self.page.locator(f"img[{self.scroll_src}]").count() == 0:
                 print(f"All {self.scroll_rank} Scroll Opened")

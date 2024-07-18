@@ -6,7 +6,7 @@ import sys
 import threading
 from src import *
 
-VALHALLA_FARM_WINDOW_SIZE="320x200"
+VALHALLA_FARM_WINDOW_SIZE="320x230"
 SCROLL_BOT_WINDOW_SIZE="320x170"
 STANDARD_AREA_FARM_WINDOW_SIZE ="340x200"
 SLOT_MACHINE_FARM_WINDOW_SIZE="320x140"
@@ -138,6 +138,9 @@ class ValhallaFarm(tk.Frame):
         self.headless_var = tk.IntVar()
         self.headless_label = ttk.Label(self.master, text="Headless (No Browser):")
         self.headless_checkbox = ttk.Checkbutton(self.master, variable=self.headless_var)
+        self.legend_box_var = tk.IntVar()
+        self.legend_box_label = ttk.Label(self.master, text="Legend Box:")
+        self.legend_box_checkbox = ttk.Checkbutton(self.master, variable=self.legend_box_var)
         self.start_button = ttk.Button(self.master, text="Start", command=self.on_start_button_click)
         self.back_to_main_menu_button = ttk.Button(self.master, text="Back to Main Menu", command=self.back_to_main_menu)
 
@@ -151,8 +154,10 @@ class ValhallaFarm(tk.Frame):
         self.difficulty_option_menu.grid(row=3, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.headless_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.headless_checkbox.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.start_button.grid(row=5, column=0, pady=STANDARD_PADDING_Y)
-        self.back_to_main_menu_button.grid(row=5, column=1, pady=STANDARD_PADDING_Y)
+        self.legend_box_label.grid(row=5, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.legend_box_checkbox.grid(row=5, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.start_button.grid(row=6, column=0, pady=STANDARD_PADDING_Y)
+        self.back_to_main_menu_button.grid(row=6, column=1, pady=STANDARD_PADDING_Y)
 
 
     def back_to_main_menu(self):
@@ -175,11 +180,17 @@ class ValhallaFarm(tk.Frame):
         dungeon_lvl = self.dungeon_lvl_option_menu.cget("text")
         difficulty = self.difficulty_option_menu.cget("text")
         headless = self.headless_var.get()
+        legend_box = self.legend_box_var.get()
 
         if headless == 1:
             headless = True
         else:
             headless = False
+        
+        if legend_box == 1:
+            legend_box = True
+        else:
+            legend_box = False
 
         if username == "" or password == "" or dungeon_lvl == "":
             messagebox.showwarning("Warning", "Please fill all the fields")
@@ -195,13 +206,13 @@ class ValhallaFarm(tk.Frame):
                 return
             
             messagebox.showinfo("Info", "Valid Credentials!\nStarting Bot!")
-            check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, headless)
+            check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, legend_box, headless)
             while not check_exit_success:
-                check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, headless)
+                check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, legend_box, headless)
     
 
-    def create_and_run_bot(self, username, password, dungeon_lvl, difficulty, headless):
-        bot = PockieNinjaValhallaBot(username, password, int(dungeon_lvl), difficulty, headless=headless)
+    def create_and_run_bot(self, username, password, dungeon_lvl, difficulty, legend_box, headless):
+        bot = PockieNinjaValhallaBot(username, password, int(dungeon_lvl), difficulty, legend_box, headless=headless)
         self.bots.append(bot)
         check_exit_success = bot.main_loop()
         return check_exit_success
