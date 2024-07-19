@@ -588,13 +588,15 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
                 if self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").count() == 0:
                     print(f"You only have 1 {self.scroll_rank} Rank Scroll left.")
                     break
-
-                if (self.page.get_by_role("button", name="Close").count() > 0):
-                    self.page.get_by_role("button", name="Close").click()
-                self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
-                time.sleep(0.2)
-                self.page.get_by_text("Use").click()
-                time.sleep(0.3)
+                else:
+                    total_scroll = int(self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").text_content().replace("x",""))
+                    if (self.page.get_by_role("button", name="Close").count() > 0):
+                        self.page.get_by_role("button", name="Close").click()
+                    self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
+                    time.sleep(0.2)
+                    self.page.get_by_text("Use").click()
+                    time.sleep(0.3)
+                    print(f"Scroll {self.scroll_rank} in bag : {total_scroll}")
 
             if self.page.locator(f"img[{self.scroll_src}]").count() == 0:
                 print(f"All {self.scroll_rank} Scroll Opened")
