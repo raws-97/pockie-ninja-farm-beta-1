@@ -165,13 +165,13 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
                     if self.page.locator(f"img[{VALHALLA_LEGEND_BOX_SRC}]").count() > 0:
                         self.page.locator(f"img[{CARD_IMG_SRC}]").locator('..').nth(card).click(position={"x": 15, "y": 15})
                         time.sleep(WINDOW_WAIT_STANDARD_DELAY)
-                        self.page.get_by_text("Collect").click()
+                        self.page.get_by_text("Collect").nth(0).click()
                         print("You get legend box set")
                         return
 
             self.page.locator(f"img[{CARD_IMG_SRC}]").locator('..').nth(0).click(position={"x": 15, "y": 15})
             time.sleep(WINDOW_WAIT_STANDARD_DELAY)
-            self.page.get_by_text("Collect").click()
+            self.page.get_by_text("Collect").nth(0).click()
 
     def open_valhalla(self):
         castle = self.page.locator(f"img[{self.castle_menu}]").bounding_box()
