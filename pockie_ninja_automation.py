@@ -585,6 +585,10 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
         ## CHECK IF SCROLL STILL EXISTS
         while True:
             if self.page.locator(f"img[{self.scroll_src}]").count() > 0:
+                if self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").count() == 0:
+                    print(f"You only have 1 {self.scroll_rank} Rank Scroll left.")
+                    break
+
                 if (self.page.get_by_role("button", name="Close").count() > 0):
                     self.page.get_by_role("button", name="Close").click()
                 self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
