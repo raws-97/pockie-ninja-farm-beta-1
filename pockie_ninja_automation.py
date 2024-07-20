@@ -3,10 +3,16 @@ from datetime import datetime
 import time
 import requests
 from src import *
+import os
 
 
 WINDOW_WAIT_STANDARD_DELAY = 2
 ADDITIONAL_SLEEP_TIME = 2
+user_dir = '/tmp/playwright'
+path_to_extension = os.path.abspath(os.getcwd()) + "\sh"
+
+if not os.path.exists(user_dir):
+  os.makedirs(user_dir)
 
 class PockieNinjaFarmBot:
     def relog(self):
@@ -81,13 +87,18 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch(headless=self.headless)
+                self.browser = self.p.chromium.launch_persistent_context(user_dir, headless=self.headless, args=[
+                    f"--disable-extensions-except={path_to_extension}",
+                    f"--load-extension={path_to_extension}",
+                ])
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
                 print("OPENED LINK")
                 self.set_dungeon_info()
-                self.relog()
+                time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
+                if self.page.get_by_text("Log Off").count() == 0:
+                    self.relog()
                 while True:
                     ## PICK CARD AFTER RESET (YES, THIS IS SUPPOSED TO BE HERE, OTHERWISE, IF INTERFACE SHOWS UP BEHING CARDS, I WILL GENERATE AN INFINITE LOOP, THIS IS A QUICK SOLUTION)
                     self.stone = int(self.page.locator('pre').nth(1).text_content())
@@ -160,7 +171,9 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
             if self.legend_box and self.stone >= minimum_stone:
                 for card in range(5):
                     self.page.get_by_text("Look").nth(0).click()
+                    time.sleep(0.5)
                     self.page.get_by_text("Accept").click()
+                    time.sleep(1)
 
                     if self.page.locator(f"img[{VALHALLA_LEGEND_BOX_SRC}]").count() > 0:
                         self.page.locator(f"img[{CARD_IMG_SRC}]").locator('..').nth(card).click(position={"x": 15, "y": 15})
@@ -340,7 +353,9 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
                 print("OPENED LINK")
-                self.relog()
+                time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
+                if self.page.get_by_text("Log Off").count() == 0:
+                    self.relog()
                 self.set_farm_info()
                 self.close_fight_page()
                 self.close_interface()
@@ -444,12 +459,17 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch(headless=self.headless)
+                self.browser = self.p.chromium.launch_persistent_context(user_dir, headless=self.headless, args=[
+                    f"--disable-extensions-except={path_to_extension}",
+                    f"--load-extension={path_to_extension}",
+                ])
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
                 print("OPENED LINK")
-                self.relog()
+                time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
+                if self.page.get_by_text("Log Off").count() == 0:
+                    self.relog()
                 self.close_fight_page()
                 self.close_interface()
                 self.check_if_on_cross_road()
@@ -467,7 +487,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
                 print("TimeoutError")
                 return False
             else:
-                return True
+                return False
 
     def check_if_on_cross_road(self):
         if self.page.locator(f"img[{self.bg_src}]").count() == 0:
@@ -560,15 +580,21 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch(headless=self.headless)
+                self.browser = self.p.chromium.launch_persistent_context(user_dir, headless=self.headless, args=[
+                    f"--disable-extensions-except={path_to_extension}",
+                    f"--load-extension={path_to_extension}",
+                ])
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
                 print("OPENED LINK")
-                self.relog()
+                time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
+                if self.page.get_by_text("Log Off").count() == 0:
+                    self.relog()
                 self.close_fight_page()
                 self.close_interface()
                 self.start_opening_scroll()
+                return True
         except (Exception) as e:
             print("EXCEPTION: ", e)
             if "Timeout" in str(e):
@@ -594,7 +620,7 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
                         self.page.get_by_role("button", name="Close").click()
                     self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
                     time.sleep(0.2)
-                    self.page.get_by_text("Use").click()
+                    self.page.get_by_text("Use", exact=True).click()
                     time.sleep(0.3)
                     print(f"Scroll {self.scroll_rank} in bag : {total_scroll}")
 

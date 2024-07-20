@@ -1,0 +1,40 @@
+{
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+  "manifest_version": 2,
+  "name": "HTML5 Universal Speed Hack",
+  "description": "",
+  "version": "10.0",
+  "permissions": [
+    "<all_urls>"
+  ],
+  "icons": {
+    "162": "icon.png"
+  },
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_title": "HTML5 Universal Speed Hack",
+    "default_popup": "index.html"
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "run_at": "document_start",
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "contentScript.js"
+      ]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{6f57c21a-3d7a-4fc0-95a0-58018507613a}"
+    }
+  }
+}
