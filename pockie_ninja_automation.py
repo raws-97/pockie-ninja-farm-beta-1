@@ -108,9 +108,6 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
                     self.check_if_on_valhalla_camp()
                     time.sleep(WINDOW_WAIT_STANDARD_DELAY)
                     self.start_farm()
-                    if self.count_fight==self.fight_num:
-                        self.click_card()
-                        print("RESTARTING MACRO...")
         except (Exception) as e:
             print("EXCEPTION: ", e)
             if "Timeout" in str(e):
@@ -163,9 +160,11 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
             minimum_stone = 50000
 
             if self.legend_box and self.difficulty_src != NORMAL_VALHALLA_DIFFICULTY and self.dungeon_lvl < 16:
+                self.legend_box = False
                 print("You need to take at least dungeon level 16 and normal difficulty.")
 
             if self.legend_box and self.stone < minimum_stone:
+                self.legend_box = False
                 print("Your stone is less than 50k")
 
             if self.legend_box and self.stone >= minimum_stone:
