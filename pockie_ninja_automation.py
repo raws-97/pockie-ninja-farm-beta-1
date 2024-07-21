@@ -280,6 +280,8 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
         self.flag_first_time = True
         self.count_fight = 0
         self.win_fight = 0
+        self.start_farm_time = ""
+        self.start_fight_time = ""
         self.area_name = area_name
         self.mob_name = mob_name
         self.mob_to_farm = ""
@@ -347,7 +349,10 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch(headless=self.headless)
+                self.browser = self.p.chromium.launch_persistent_context(user_dir, headless=self.headless, args=[
+                    f"--disable-extensions-except={path_to_extension}",
+                    f"--load-extension={path_to_extension}",
+                ])
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
@@ -359,12 +364,14 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
                 self.close_fight_page()
                 self.close_interface()
                 self.check_if_on_smelting_mountais_camp()
+                self.start_farm_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 while True:
                     time.sleep(WINDOW_WAIT_STANDARD_DELAY)
                     self.start_farm()
                     self.count_fight += 1
                     print(f"FIGHT NUMBER: {self.count_fight} ({self.win_fight} WIN)")
-                    print("RESTARTING MACRO...")
+                    self.calculate_fight_time()
+                    self.calculate_total_time()
         except (Exception) as e:
             print("EXCEPTION: ", e)
             if "Timeout" in str(e):
@@ -401,6 +408,7 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
 
     def boss_farm(self):
         flag_has_ticket = False
+        self.start_fight_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         ## OPENING PLAYER BAG
         self.page.locator(f"img[{PLAYER_BAG}]").click()
         for bag_slot in range(MAX_BAG_SLOTS): ## BAG SLOTS SET TO 12 BECAUSE THERE ARE 2 BUTTONS IN THE BAG INTERFACE THAT HAVE NO CORRELATION WITH BAG SLOTS (WE WILL SKIP THEM)
@@ -426,6 +434,7 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
             self.boss_farm()
         else:
             self.page.locator(f"img[{self.mob_to_farm}]").click()
+            self.start_fight_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             ## CHECK IF CANVAS BATLLE STILL OPEN
             while True:
                 if self.page.get_by_text("Close").count() > 0:
@@ -435,6 +444,38 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
                         self.win_fight += 1
                     self.page.get_by_text("Close").click()
                     break
+    
+    def calculate_fight_time(self):
+        started_fight_time = datetime.strptime(self.start_fight_time, "%Y-%m-%d %H:%M:%S")
+        completed_fight_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        delta = datetime.strptime(completed_fight_time, "%Y-%m-%d %H:%M:%S") - started_fight_time
+        total_seconds = delta.total_seconds()
+        
+        minutes = int((total_seconds % 3600) // 60)
+        seconds = int(total_seconds % 60)
+
+        minutes = f"{minutes:02}"
+        seconds = f"{seconds:02}"
+
+        print(f"FIGHT COMPLETED IN {minutes}:{seconds}")
+    
+    def calculate_total_time(self):
+        started_farm_time = datetime.strptime(self.start_farm_time, "%Y-%m-%d %H:%M:%S")
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        delta = datetime.strptime(current_time, "%Y-%m-%d %H:%M:%S") - started_farm_time
+        total_seconds = delta.total_seconds()
+
+        hours = int(total_seconds // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+        seconds = int(total_seconds % 60)
+
+        hours = f"{hours:02}"
+        minutes = f"{minutes:02}"
+        seconds = f"{seconds:02}"
+
+        print(f"FARM RUNNING FOR {hours}:{minutes}:{seconds} ({datetime.strptime(current_time, '%Y-%m-%d %H:%M:%S').time()})")
 
 ################################################################################################################################
 class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
