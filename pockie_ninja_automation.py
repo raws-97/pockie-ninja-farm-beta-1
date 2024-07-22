@@ -591,6 +591,8 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
         self.password = password
         self.headless = headless
         self.scroll_rank = scroll_rank
+        self.total_scroll = 0
+        self.tries = 0
         self.flag_first_time = True
 
         if self.scroll_rank == "C":
@@ -610,9 +612,7 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
                 print("OPENED LINK")
-                time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
-                if self.page.get_by_text("Log Off").count() == 0:
-                    self.relog()
+                self.relog()
                 self.close_fight_page()
                 self.close_interface()
                 self.start_opening_scroll()
@@ -637,14 +637,21 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
                     print(f"You only have 1 {self.scroll_rank} Rank Scroll left.")
                     break
                 else:
-                    total_scroll = int(self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").text_content().replace("x",""))
+                    self.total_scroll = int(self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").text_content().replace("x",""))
                     if (self.page.get_by_role("button", name="Close").count() > 0):
                         self.page.get_by_role("button", name="Close").click()
                     self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
                     time.sleep(0.2)
                     self.page.get_by_text("Use", exact=True).click()
                     time.sleep(0.3)
-                    print(f"Scroll {self.scroll_rank} in bag : {total_scroll}")
+                    self.tries += 1
+                    if self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").count() == 0:
+                        print(f"You only have 1 {self.scroll_rank} Rank Scroll left.")
+                        break
+                    current_scroll = int(self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").text_content().replace("x",""))
+                    if current_scroll < self.total_scroll:
+                        print(f"Scroll {self.scroll_rank} in bag : {current_scroll} (x{self.tries})")
+                        self.tries = 0
 
             if self.page.locator(f"img[{self.scroll_src}]").count() == 0:
                 print(f"All {self.scroll_rank} Scroll Opened")
