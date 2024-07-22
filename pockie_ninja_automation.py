@@ -8,11 +8,6 @@ import os
 
 WINDOW_WAIT_STANDARD_DELAY = 2
 ADDITIONAL_SLEEP_TIME = 2
-user_dir = '/tmp/playwright'
-path_to_extension = os.path.abspath(os.getcwd()) + "\sh"
-
-if not os.path.exists(user_dir):
-  os.makedirs(user_dir)
 
 class PockieNinjaFarmBot:
     def relog(self):
@@ -67,12 +62,13 @@ class PockieNinjaFarmBot:
 ################################################################################################################################
 ################################################################################################################################
 class PockieNinjaValhallaBot(PockieNinjaFarmBot):
-    def __init__(self, username, password, dungeon_lvl, difficulty, legend_box, headless):
+    def __init__(self, username, password, dungeon_lvl, difficulty, legend_box, game_speed, headless):
         self.dungeon_lvl = dungeon_lvl
         self.difficulty = difficulty
         self.username = username
         self.password = password
         self.headless = headless
+        self.game_speed = game_speed
         self.legend_box = legend_box
         self.flag_first_time = True
         self.count_fight = 0
@@ -87,19 +83,17 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch_persistent_context(user_dir, headless=self.headless, args=[
-                    f"--disable-extensions-except={path_to_extension}",
-                    f"--load-extension={path_to_extension}",
-                ])
+                self.browser = self.p.chromium.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
                 print("OPENED LINK")
                 self.set_dungeon_info()
-                time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
-                if self.page.get_by_text("Log Off").count() == 0:
-                    self.relog()
+                print(f"GAME SPEED : {self.game_speed}")
+                self.relog()
                 while True:
+                    self.page.evaluate(JAVASCRIPT_CODE_SH)
+                    self.page.evaluate(JAVASCRIPT_SPEED_CONFIG.replace("1.0", self.game_speed))
                     ## PICK CARD AFTER RESET (YES, THIS IS SUPPOSED TO BE HERE, OTHERWISE, IF INTERFACE SHOWS UP BEHING CARDS, I WILL GENERATE AN INFINITE LOOP, THIS IS A QUICK SOLUTION)
                     self.stone = int(self.page.locator('pre').nth(1).text_content())
                     self.pick_card_after_reset()
@@ -273,9 +267,10 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
 ################################################################################################################################
 ################################################################################################################################
 class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
-    def __init__(self, username, password, area_name, mob_name, headless):
+    def __init__(self, username, password, area_name, mob_name, game_speed, headless):
         self.username = username
         self.password = password
+        self.game_speed = game_speed
         self.headless = headless
         self.flag_first_time = True
         self.count_fight = 0
@@ -349,17 +344,15 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch_persistent_context(user_dir, headless=self.headless, args=[
-                    f"--disable-extensions-except={path_to_extension}",
-                    f"--load-extension={path_to_extension}",
-                ])
+                self.browser = self.p.chromium.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
+                self.page.evaluate(JAVASCRIPT_CODE_SH)
                 print("OPENED LINK")
-                time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
-                if self.page.get_by_text("Log Off").count() == 0:
-                    self.relog()
+                self.page.evaluate(JAVASCRIPT_SPEED_CONFIG.replace("1.0", self.game_speed))
+                print(f"GAME SPEED : {self.game_speed}")
+                self.relog()
                 self.set_farm_info()
                 self.close_fight_page()
                 self.close_interface()
@@ -479,9 +472,10 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
 
 ################################################################################################################################
 class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
-    def __init__(self, username, password, headless):
+    def __init__(self, username, password, game_speed, headless):
         self.username = username
         self.password = password
+        self.game_speed = game_speed
         self.headless = headless
         self.flag_first_time = True
         self.count_fight = 0
@@ -499,17 +493,15 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch_persistent_context(user_dir, headless=self.headless, args=[
-                    f"--disable-extensions-except={path_to_extension}",
-                    f"--load-extension={path_to_extension}",
-                ])
+                self.browser = self.p.chromium.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
+                self.page.evaluate(JAVASCRIPT_CODE_SH)
                 print("OPENED LINK")
-                time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
-                if self.page.get_by_text("Log Off").count() == 0:
-                    self.relog()
+                self.page.evaluate(JAVASCRIPT_SPEED_CONFIG.replace("1.0", self.game_speed))
+                print(f"GAME SPEED : {self.game_speed}")
+                self.relog()
                 self.close_fight_page()
                 self.close_interface()
                 self.check_if_on_cross_road()
@@ -620,10 +612,7 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
-                self.browser = self.p.chromium.launch_persistent_context(user_dir, headless=self.headless, args=[
-                    f"--disable-extensions-except={path_to_extension}",
-                    f"--load-extension={path_to_extension}",
-                ])
+                self.browser = self.p.chromium.launch(headless=self.headless)
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")

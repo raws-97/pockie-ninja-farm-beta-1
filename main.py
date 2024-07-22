@@ -6,10 +6,10 @@ import sys
 import threading
 from src import *
 
-VALHALLA_FARM_WINDOW_SIZE="320x230"
+VALHALLA_FARM_WINDOW_SIZE="320x260"
 SCROLL_BOT_WINDOW_SIZE="320x170"
-STANDARD_AREA_FARM_WINDOW_SIZE ="340x200"
-SLOT_MACHINE_FARM_WINDOW_SIZE="320x140"
+STANDARD_AREA_FARM_WINDOW_SIZE ="340x230"
+SLOT_MACHINE_FARM_WINDOW_SIZE="320x160"
 MAIN_MENU_WINDOW_SIZE="180x170"
 STANDARD_PADDING_X=15
 STANDARD_PADDING_Y=3
@@ -34,20 +34,22 @@ class MainMenu(tk.Frame):
 
 
     def create_widgets(self):
+        # Configure grid weights to allow for expansion
         self.master.grid_columnconfigure(0, weight=1)
         self.master.grid_rowconfigure(1, weight=1)
         self.master.grid_columnconfigure(0, weight=1)
 
+        # Create buttons
         self.valhalla_farm_button = ttk.Button(self.master, text="Valhalla Farm", command=self.on_valhalla_farm_button_click)
         self.slot_machine_farm_button = ttk.Button(self.master, text="Slot Machine Farm", command=self.on_slot_machine_farm_button_click)
         self.regular_area_button = ttk.Button(self.master, text="Regular Area Farm", command=self.on_regular_area_button_click)
         self.scroll_opener_button = ttk.Button(self.master, text="Open Scroll", command=self.on_scroll_opener_button_click)
 
-        self.valhalla_farm_button.grid(row=0, column=0)
-        self.slot_machine_farm_button.grid(row=1, column=0)
-        self.regular_area_button.grid(row=2, column=0)
-        self.scroll_opener_button.grid(row=3, column=0)
-
+        # Place buttons with padding
+        self.valhalla_farm_button.grid(row=0, column=0, padx=10, pady=5)  # Add padding
+        self.slot_machine_farm_button.grid(row=1, column=0, padx=10, pady=0)  # Add padding
+        self.regular_area_button.grid(row=2, column=0, padx=10, pady=5)  # Add padding
+        self.scroll_opener_button.grid(row=3, column=0, padx=10, pady=5)  # Add padding
 
     def on_valhalla_farm_button_click(self):
         self.master.destroy()
@@ -141,6 +143,9 @@ class ValhallaFarm(tk.Frame):
         self.legend_box_var = tk.IntVar()
         self.legend_box_label = ttk.Label(self.master, text="Legend Box:")
         self.legend_box_checkbox = ttk.Checkbutton(self.master, variable=self.legend_box_var)
+        self.game_speed_var = tk.DoubleVar()
+        self.game_speed_label = ttk.Label(self.master, text="Game Speed ( 1.0)")
+        self.game_speed_slider = ttk.Scale(self.master, from_=1, to=2, variable=self.game_speed_var, command=self.slider_changed)
         self.start_button = ttk.Button(self.master, text="Start", command=self.on_start_button_click)
         self.back_to_main_menu_button = ttk.Button(self.master, text="Back to Main Menu", command=self.back_to_main_menu)
 
@@ -152,12 +157,20 @@ class ValhallaFarm(tk.Frame):
         self.dungeon_lvl_option_menu.grid(row=2, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.difficulty_option_label.grid(row=3, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.difficulty_option_menu.grid(row=3, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_checkbox.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.legend_box_label.grid(row=5, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.legend_box_checkbox.grid(row=5, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.start_button.grid(row=6, column=0, pady=STANDARD_PADDING_Y)
-        self.back_to_main_menu_button.grid(row=6, column=1, pady=STANDARD_PADDING_Y)
+        self.legend_box_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.legend_box_checkbox.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_label.grid(row=5, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_slider.grid(row=5, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_label.grid(row=6, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_checkbox.grid(row=6, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.start_button.grid(row=7, column=0, pady=STANDARD_PADDING_Y)
+        self.back_to_main_menu_button.grid(row=7, column=1, pady=STANDARD_PADDING_Y)
+
+    def get_speedhack_value(self):
+        return f"Game Speed ({'{: .1f}'.format(self.game_speed_var.get())})"
+
+    def slider_changed(self, event):
+        self.game_speed_label.configure(text=self.get_speedhack_value())
 
 
     def back_to_main_menu(self):
@@ -181,6 +194,7 @@ class ValhallaFarm(tk.Frame):
         difficulty = self.difficulty_option_menu.cget("text")
         headless = self.headless_var.get()
         legend_box = self.legend_box_var.get()
+        game_speed = '{: .1f}'.format(self.game_speed_var.get())
 
         if headless == 1:
             headless = True
@@ -206,13 +220,13 @@ class ValhallaFarm(tk.Frame):
                 return
             
             messagebox.showinfo("Info", "Valid Credentials!\nStarting Bot!")
-            check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, legend_box, headless)
+            check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, legend_box, game_speed, headless)
             while not check_exit_success:
-                check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, legend_box, headless)
+                check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, legend_box, game_speed, headless)
     
 
-    def create_and_run_bot(self, username, password, dungeon_lvl, difficulty, legend_box, headless):
-        bot = PockieNinjaValhallaBot(username, password, int(dungeon_lvl), difficulty, legend_box, headless=headless)
+    def create_and_run_bot(self, username, password, dungeon_lvl, difficulty, legend_box, game_speed, headless):
+        bot = PockieNinjaValhallaBot(username, password, int(dungeon_lvl), difficulty, legend_box, game_speed, headless=headless)
         self.bots.append(bot)
         check_exit_success = bot.main_loop()
         return check_exit_success
@@ -237,6 +251,9 @@ class SlotMachineFarm(tk.Frame):
         self.password_label = ttk.Label(self.master, text="Password:")
         self.password_entry = ttk.Entry(self.master, show="*")
         ## ADD A CHECKBOX IF YOU WANT TO RUN THE BOT IN HEADLESS MODE
+        self.game_speed_var = tk.DoubleVar()
+        self.game_speed_label = ttk.Label(self.master, text="Game Speed ( 1.0)")
+        self.game_speed_slider = ttk.Scale(self.master, from_=1, to=3, variable=self.game_speed_var, command=self.slider_changed)
         self.headless_var = tk.IntVar()
         self.headless_label = ttk.Label(self.master, text="Headless (No Browser):")
         self.headless_checkbox = ttk.Checkbutton(self.master, variable=self.headless_var)
@@ -247,11 +264,18 @@ class SlotMachineFarm(tk.Frame):
         self.username_entry.grid(row=0, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.password_label.grid(row=1, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.password_entry.grid(row=1, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_checkbox.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.start_button.grid(row=5, column=0, pady=STANDARD_PADDING_Y)
-        self.back_to_main_menu_button.grid(row=5, column=1, pady=STANDARD_PADDING_Y)
+        self.game_speed_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_slider.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_label.grid(row=5, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_checkbox.grid(row=5, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.start_button.grid(row=6, column=0, pady=STANDARD_PADDING_Y)
+        self.back_to_main_menu_button.grid(row=6, column=1, pady=STANDARD_PADDING_Y)
+    
+    def get_speedhack_value(self):
+        return f"Game Speed ({'{: .1f}'.format(self.game_speed_var.get())})"
 
+    def slider_changed(self, event):
+        self.game_speed_label.configure(text=self.get_speedhack_value())
 
     def back_to_main_menu(self):
         self.master.destroy()
@@ -271,6 +295,7 @@ class SlotMachineFarm(tk.Frame):
         username = self.username_entry.get()
         password = self.password_entry.get()
         headless = self.headless_var.get()
+        game_speed = '{: .1f}'.format(self.game_speed_var.get())
 
         if headless == 1:
             headless = True
@@ -291,13 +316,13 @@ class SlotMachineFarm(tk.Frame):
                 return
             
             messagebox.showinfo("Info", "Valid Credentials!\nStarting Bot!")
-            check_exit_success = self.create_and_run_bot(username, password, headless)
+            check_exit_success = self.create_and_run_bot(username, password, game_speed, headless)
             while not check_exit_success:
-                check_exit_success = self.create_and_run_bot(username, password, headless)
+                check_exit_success = self.create_and_run_bot(username, password, game_speed, headless)
     
 
-    def create_and_run_bot(self, username, password, headless):
-        bot = PockieNinjaSlotMachineFarm(username, password, headless=headless)
+    def create_and_run_bot(self, username, password, game_speed, headless):
+        bot = PockieNinjaSlotMachineFarm(username, password, game_speed, headless=headless)
         self.bots.append(bot)
         check_exit_success = bot.main_loop()
         return check_exit_success
@@ -310,9 +335,6 @@ class StandardAreaFarm(tk.Frame):
         self.master.title("Pockie Ninja Bot - Mob Farm")
         self.master.geometry(STANDARD_AREA_FARM_WINDOW_SIZE)
         self.master.resizable(False, False)
-        self.grid(row=0, column=0, sticky="NESW")
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
         self.create_widgets()
         self.bots = []
         self.threads = []
@@ -344,29 +366,46 @@ class StandardAreaFarm(tk.Frame):
         self.mob_name_str_var.set(options[0])
 
     def create_widgets(self):
+        # Configure the grid for the parent widget
+        self.grid(row=0, column=0, sticky="NESW")
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Username and password widgets
         self.username_label = ttk.Label(self, text="Username")
         self.username_entry = ttk.Entry(self)
         self.password_label = ttk.Label(self, text="Password")
         self.password_entry = ttk.Entry(self, show="*")
-        ## AREA NAMES DROPDOWN MENU
+
+        # Area names dropdown menu
         area_options = self.populate_area_names()
         self.area_option_label = ttk.Label(self, text="Choose Area")
         self.area_name_str_var = tk.StringVar()
         self.area_name_str_var.set(area_options[0])
-        self.area_name_option_menu = tk.OptionMenu(self , self.area_name_str_var , *area_options, command=self.update_mob_names)
-        ## MOB NAMES DROPDOWN MENU
+        self.area_name_option_menu = tk.OptionMenu(self, self.area_name_str_var, *area_options, command=self.update_mob_names)
+
+        # Mob names dropdown menu
         mobs_options = self.populate_mob_names()
         self.mob_option_label = ttk.Label(self, text="Choose Mob")
         self.mob_name_str_var = tk.StringVar()
         self.mob_name_str_var.set(mobs_options[0])
-        self.mob_name_option_menu = tk.OptionMenu(self , self.mob_name_str_var , *mobs_options)
-        ## ADD A CHECKBOX IF YOU WANT TO RUN THE BOT IN HEADLESS MODE
+        self.mob_name_option_menu = tk.OptionMenu(self, self.mob_name_str_var, *mobs_options)
+
+        # Game speed settings
+        self.game_speed_var = tk.DoubleVar(value=1.0)  # Default value
+        self.game_speed_label = ttk.Label(self, text="Game Speed (1.0)")
+        self.game_speed_slider = ttk.Scale(self, from_=1, to=3, orient='horizontal', variable=self.game_speed_var, command=self.slider_changed)
+
+        # Headless mode checkbox
         self.headless_var = tk.IntVar()
         self.headless_label = ttk.Label(self, text="Headless (No Browser):")
         self.headless_checkbox = ttk.Checkbutton(self, variable=self.headless_var)
+
+        # Control buttons
         self.start_button = ttk.Button(self, text="Start", command=self.on_start_button_click)
         self.back_to_main_menu_button = ttk.Button(self, text="Back to Main Menu", command=self.back_to_main_menu)
 
+        # Grid placement
         self.username_label.grid(row=0, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.username_entry.grid(row=0, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.password_label.grid(row=1, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
@@ -375,10 +414,18 @@ class StandardAreaFarm(tk.Frame):
         self.area_name_option_menu.grid(row=2, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.mob_option_label.grid(row=3, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.mob_name_option_menu.grid(row=3, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_checkbox.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.start_button.grid(row=5, column=0, pady=STANDARD_PADDING_Y)
-        self.back_to_main_menu_button.grid(row=5, column=1, pady=STANDARD_PADDING_Y)
+        self.headless_label.grid(row=5, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_checkbox.grid(row=5, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_slider.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.start_button.grid(row=6, column=0, pady=STANDARD_PADDING_Y)
+        self.back_to_main_menu_button.grid(row=6, column=1, pady=STANDARD_PADDING_Y)
+    
+    def get_speedhack_value(self):
+        return f"Game Speed ({'{: .1f}'.format(self.game_speed_var.get())})"
+
+    def slider_changed(self, event):
+        self.game_speed_label.configure(text=self.get_speedhack_value())
 
     def back_to_main_menu(self):
         self.master.destroy()
@@ -398,6 +445,7 @@ class StandardAreaFarm(tk.Frame):
         area_name = self.area_name_option_menu.cget("text")
         mob_name = self.mob_name_option_menu.cget("text")
         headless = self.headless_var.get()
+        game_speed = '{: .1f}'.format(self.game_speed_var.get())
         if headless == 1:
             headless = True
         else:
@@ -417,12 +465,12 @@ class StandardAreaFarm(tk.Frame):
                     messagebox.showwarning("Warning", "Invalid Credentials!\nPassword is incorrect!")
                 return
             messagebox.showinfo("Info", "Valid Credentials!\nStarting Bot!")
-            check_exit_success = self.create_and_run_bot(username, password, area_name, mob_name, headless)
+            check_exit_success = self.create_and_run_bot(username, password, area_name, mob_name, game_speed, headless)
             while not check_exit_success:
-                check_exit_success = self.create_and_run_bot(username, password, area_name, mob_name, headless)
+                check_exit_success = self.create_and_run_bot(username, password, area_name, mob_name, game_speed, headless)
 
-    def create_and_run_bot(self, username, password, area_name, mob_name, headless):
-        bot = PockieNinjaStandardAreaFarm(username, password, area_name, mob_name, headless=headless)
+    def create_and_run_bot(self, username, password, area_name, mob_name, game_speed, headless):
+        bot = PockieNinjaStandardAreaFarm(username, password, area_name, mob_name, game_speed, headless=headless)
         self.bots.append(bot)
         check_exit_success = bot.main_loop()
         return check_exit_success
