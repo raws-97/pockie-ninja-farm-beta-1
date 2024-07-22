@@ -100,6 +100,7 @@ VALHALLA_CAMP_PANTHEON_ENTRANCE_BATTLE_INSTANCE_SRC="src='https://pockie-ninja-a
 VALHALLA_CAMP_BATTLE_ICON_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/monsters/10005.png'"
 VALLHALLA_CAMP_FIGHT_NUM=10
 VALHALLA_LEGEND_BOX_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/etc/13.png'"
+VALHALLA_LEGEND_BOX_MINIMUM_STONE=50000
 
 ##SCROLL
 BAG_ICON_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/features/bottom-menu/11-1.png'"

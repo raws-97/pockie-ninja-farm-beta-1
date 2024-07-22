@@ -32,7 +32,6 @@ class MainMenu(tk.Frame):
         self.create_widgets()
         center(self.master)
 
-
     def create_widgets(self):
         # Configure grid weights to allow for expansion
         self.master.grid_columnconfigure(0, weight=1)
@@ -60,7 +59,6 @@ class MainMenu(tk.Frame):
         
         app.mainloop()
 
-    
     def on_slot_machine_farm_button_click(self):
         self.master.destroy()
         root = tk.Tk()
@@ -69,7 +67,6 @@ class MainMenu(tk.Frame):
         set_style()
         
         app.mainloop()
-
 
     def on_regular_area_button_click(self):
         self.master.destroy()
@@ -89,7 +86,7 @@ class MainMenu(tk.Frame):
         
         app.mainloop()
 
-
+## CREATE VALHALLA GUI
 class ValhallaFarm(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -102,7 +99,6 @@ class ValhallaFarm(tk.Frame):
         self.threads = []
         center(self.master)
 
-    
     def update_difficulties(self, *args):
         # Reset var and delete all old options
         self.difficulty_str_var.set('')
@@ -117,7 +113,6 @@ class ValhallaFarm(tk.Frame):
         for option in difficulty_options:
             self.difficulty_option_menu['menu'].add_command(label=option, command=tk._setit(self.difficulty_str_var, option))
         self.difficulty_str_var.set(difficulty_options[0])
-
 
     def create_widgets(self):
         self.username_label = ttk.Label(self.master, text="Username:")
@@ -172,7 +167,6 @@ class ValhallaFarm(tk.Frame):
     def slider_changed(self, event):
         self.game_speed_label.configure(text=self.get_speedhack_value())
 
-
     def back_to_main_menu(self):
         self.master.destroy()
         root = tk.Tk()
@@ -180,12 +174,10 @@ class ValhallaFarm(tk.Frame):
         set_style()
         app.mainloop()
 
-
     def on_start_button_click(self):
         new_thread = threading.Thread(target=self.start_bot, daemon=True)
         self.threads.append(new_thread)
         new_thread.start()
-
 
     def start_bot(self):
         username = self.username_entry.get()
@@ -223,7 +215,6 @@ class ValhallaFarm(tk.Frame):
             check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, legend_box, game_speed, headless)
             while not check_exit_success:
                 check_exit_success = self.create_and_run_bot(username, password, dungeon_lvl, difficulty, legend_box, game_speed, headless)
-    
 
     def create_and_run_bot(self, username, password, dungeon_lvl, difficulty, legend_box, game_speed, headless):
         bot = PockieNinjaValhallaBot(username, password, int(dungeon_lvl), difficulty, legend_box, game_speed, headless=headless)
@@ -232,6 +223,7 @@ class ValhallaFarm(tk.Frame):
         return check_exit_success
 
 
+## CREATE SLOT MACHINE GUI
 class SlotMachineFarm(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -243,7 +235,6 @@ class SlotMachineFarm(tk.Frame):
         self.bots = []
         self.threads = []
         center(self.master)
-
 
     def create_widgets(self):
         self.username_label = ttk.Label(self.master, text="Username:")
@@ -284,12 +275,10 @@ class SlotMachineFarm(tk.Frame):
         set_style()
         app.mainloop()
 
-
     def on_start_button_click(self):
         new_thread = threading.Thread(target=self.start_bot, daemon=True)
         self.threads.append(new_thread)
         new_thread.start()
-
 
     def start_bot(self):
         username = self.username_entry.get()
@@ -319,7 +308,6 @@ class SlotMachineFarm(tk.Frame):
             check_exit_success = self.create_and_run_bot(username, password, game_speed, headless)
             while not check_exit_success:
                 check_exit_success = self.create_and_run_bot(username, password, game_speed, headless)
-    
 
     def create_and_run_bot(self, username, password, game_speed, headless):
         bot = PockieNinjaSlotMachineFarm(username, password, game_speed, headless=headless)
@@ -328,6 +316,7 @@ class SlotMachineFarm(tk.Frame):
         return check_exit_success
 
 
+## CREATE STANDARD FARM GUI
 class StandardAreaFarm(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -475,6 +464,8 @@ class StandardAreaFarm(tk.Frame):
         check_exit_success = bot.main_loop()
         return check_exit_success
 
+
+## CREATE SCROLL OPENER GUI
 class ScrollOpenerBot(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -486,7 +477,6 @@ class ScrollOpenerBot(tk.Frame):
         self.bots = []
         self.threads = []
         center(self.master)
-
 
     def create_widgets(self):
         self.username_label = ttk.Label(self.master, text="Username:")
@@ -517,7 +507,6 @@ class ScrollOpenerBot(tk.Frame):
         self.start_button.grid(row=5, column=0, pady=STANDARD_PADDING_Y)
         self.back_to_main_menu_button.grid(row=5, column=1, pady=STANDARD_PADDING_Y)
 
-
     def back_to_main_menu(self):
         self.master.destroy()
         root = tk.Tk()
@@ -525,12 +514,10 @@ class ScrollOpenerBot(tk.Frame):
         set_style()
         app.mainloop()
 
-
     def on_start_button_click(self):
         new_thread = threading.Thread(target=self.start_bot, daemon=True)
         self.threads.append(new_thread)
         new_thread.start()
-
 
     def start_bot(self):
         username = self.username_entry.get()
@@ -561,12 +548,12 @@ class ScrollOpenerBot(tk.Frame):
             while not check_exit_success:
                 check_exit_success = self.create_and_run_bot(username, password, scroll_rank, headless)
     
-
     def create_and_run_bot(self, username, password, scroll_rank, headless):
         bot = PockieNinjaScrollOpener(username, password, scroll_rank, headless)
         self.bots.append(bot)
         check_exit_success = bot.main_loop()
         return check_exit_success
+
 
 def center(toplevel):
     toplevel.update_idletasks()

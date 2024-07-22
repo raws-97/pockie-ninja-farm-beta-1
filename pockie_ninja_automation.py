@@ -5,7 +5,6 @@ import requests
 from src import *
 import os
 
-
 WINDOW_WAIT_STANDARD_DELAY = 2
 ADDITIONAL_SLEEP_TIME = 2
 
@@ -79,7 +78,6 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
         self.battle_select_instance = ""
         self.battle_icon = ""
 
-
     def main_loop(self):
         try:
             with sync_playwright() as self.p:
@@ -109,7 +107,7 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
                 return False
             else:
                 return True
-    
+
     def set_dungeon_info(self):
         if self.dungeon_lvl == 11:
             self.fight_num = DECADENT_NEST_FIGHT_NUM
@@ -145,23 +143,21 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
             print("ENTERING VALHALLA...")
             self.page.mouse.click(valhalla_encampment["x"] + valhalla_encampment["width"]/2, i)
             self.page.get_by_text("Enter Valhalla").click()
-        
+
     def pick_card_after_reset(self):
         time.sleep(WINDOW_WAIT_STANDARD_DELAY*3)
         if self.page.locator(f"img[{CARD_IMG_SRC}]").count() > 0:
             print("PICKING LEFTOVER CARDS (OBS: LEFT FROM PREVIOUS SESSION)")
 
-            minimum_stone = 50000
-
             if self.legend_box and self.difficulty_src != NORMAL_VALHALLA_DIFFICULTY and self.dungeon_lvl < 16:
                 self.legend_box = False
                 print("You need to take at least dungeon level 16 and normal difficulty.")
 
-            if self.legend_box and self.stone < minimum_stone:
+            if self.legend_box and self.stone < VALHALLA_LEGEND_BOX_MINIMUM_STONE:
                 self.legend_box = False
                 print("Your stone is less than 50k")
 
-            if self.legend_box and self.stone >= minimum_stone:
+            if self.legend_box and self.stone >= VALHALLA_LEGEND_BOX_MINIMUM_STONE:
                 for card in range(5):
                     self.page.get_by_text("Look").nth(0).click()
                     time.sleep(0.5)
@@ -209,7 +205,6 @@ class PockieNinjaValhallaBot(PockieNinjaFarmBot):
         self.count_fight = 0
         self.page.reload()
         print("ALL FIGHTS DONE!")
-
 
     def cancel_first_fight(self):
         print("CANCELLING FIRST FIGHT...")
@@ -281,7 +276,6 @@ class PockieNinjaStandardAreaFarm(PockieNinjaFarmBot):
         self.mob_name = mob_name
         self.mob_to_farm = ""
         self.set_src_variables()
-
 
     def set_src_variables(self):
         if self.area_name == SMELTING_MOUNTAINS_AREA_NAME:
@@ -607,7 +601,6 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
             self.scroll_src = A_RANK_SCROL_SRC
         elif self.scroll_rank == "S":
             self.scroll_src = S_RANK_SCROLL_SRC
-        
 
     def main_loop(self):
         try:
