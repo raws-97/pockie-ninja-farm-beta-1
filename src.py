@@ -66,6 +66,7 @@ SHADOW_BAT_ICON_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspace
 SOULENDER_ICON_SRC="id='npc-container-10015'"
 SLOT_MACHINE_ICON_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/ui/SlotMachine/icon.png'"
 SLOT_MACHINE_FRAME_OPEN="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/ui/SlotMachine/frames.png'"
+SLOT_MACHINE_CHALLENGE_BTN_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/ui/SlotMachine/StartButton.png'"
 TREE_ENT_NAME="Tree Ent (lvl 17)"
 MAN_EATER_NAME="Man-Eater (lvl 19)"
 LONGFEATHER_DEMON_NAME="Longfeather Demon (lvl 21)"
@@ -100,6 +101,7 @@ VALHALLA_CAMP_PANTHEON_ENTRANCE_BATTLE_INSTANCE_SRC="src='https://pockie-ninja-a
 VALHALLA_CAMP_BATTLE_ICON_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/monsters/10005.png'"
 VALLHALLA_CAMP_FIGHT_NUM=10
 VALHALLA_LEGEND_BOX_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/etc/13.png'"
+VALHALLA_ORANGE_JAR="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/etc/269.png'"
 VALHALLA_LEGEND_BOX_MINIMUM_STONE=50000
 
 ##SCROLL

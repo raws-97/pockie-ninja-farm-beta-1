@@ -566,7 +566,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
         ## CHECK IF SLOT MACHINE STILL OPEN
         if self.page.locator(f"img[{SLOT_MACHINE_FRAME_OPEN}]").count() == 0:
             self.page.locator(f"img[{SLOT_MACHINE_ICON_SRC}]").click()        
-        self.page.get_by_text("Challenge").click()
+        self.page.locator(f"img[{SLOT_MACHINE_CHALLENGE_BTN_SRC}]").locator('..').click()
         self.start_fight_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         ## CHECK IF CANVAS BATLLE STILL OPEN
         while (try_count < max_tries):
