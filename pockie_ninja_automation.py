@@ -3,7 +3,6 @@ from datetime import datetime
 import time
 import requests
 from src import *
-import os
 
 WINDOW_WAIT_STANDARD_DELAY = 2
 ADDITIONAL_SLEEP_TIME = 2

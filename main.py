@@ -1,54 +1,54 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from pockie_ninja_automation import *
-import sys
+import sv_ttk
 import threading
+from pockie_ninja_automation import *
 from src import *
 
-VALHALLA_FARM_WINDOW_SIZE="320x260"
-SCROLL_BOT_WINDOW_SIZE="320x170"
-STANDARD_AREA_FARM_WINDOW_SIZE ="340x230"
-SLOT_MACHINE_FARM_WINDOW_SIZE="320x160"
-MAIN_MENU_WINDOW_SIZE="180x170"
-STANDARD_PADDING_X=15
+MAIN_MENU_WINDOW_SIZE="200x200"
+VALHALLA_FARM_WINDOW_SIZE="360x300"
+STANDARD_AREA_FARM_WINDOW_SIZE="360x255"
+SLOT_MACHINE_FARM_WINDOW_SIZE="360x190"
+SCROLL_BOT_WINDOW_SIZE="360x190"
+STANDARD_PADDING_X=12
 STANDARD_PADDING_Y=3
-
+VERSION="2.0"
 
 def set_style():
-    style = ttk.Style()
-    style.theme_use("vista")
-    style.configure("TButton", padding=6, relief="flat", background="#ccc")
-
+    sv_ttk.set_theme("dark")
 
 ## CREATE A MAIN MENU WHERE IT CAN GO TO VALHALLA FARM OR REGULAR AREA FARM
 class MainMenu(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.master.title("Pockie Ninja Bot")
+        self.master.title(f"Pockie Ninja Bot | v{VERSION}")
         self.master.geometry(MAIN_MENU_WINDOW_SIZE)
         self.master.resizable(False, False)
+        self.configure_window()
         self.create_widgets()
         center(self.master)
 
+    def configure_window(self):
+        self.master.attributes("-toolwindow", True)
+
     def create_widgets(self):
         # Configure grid weights to allow for expansion
-        self.master.grid_columnconfigure(0, weight=1)
-        self.master.grid_rowconfigure(1, weight=1)
+        self.master.grid_rowconfigure((0,1,2,3), weight=1)
         self.master.grid_columnconfigure(0, weight=1)
 
         # Create buttons
         self.valhalla_farm_button = ttk.Button(self.master, text="Valhalla Farm", command=self.on_valhalla_farm_button_click)
-        self.slot_machine_farm_button = ttk.Button(self.master, text="Slot Machine Farm", command=self.on_slot_machine_farm_button_click)
         self.regular_area_button = ttk.Button(self.master, text="Regular Area Farm", command=self.on_regular_area_button_click)
+        self.slot_machine_farm_button = ttk.Button(self.master, text="Slot Machine Farm", command=self.on_slot_machine_farm_button_click)
         self.scroll_opener_button = ttk.Button(self.master, text="Open Scroll", command=self.on_scroll_opener_button_click)
 
         # Place buttons with padding
-        self.valhalla_farm_button.grid(row=0, column=0, padx=10, pady=5)  # Add padding
-        self.slot_machine_farm_button.grid(row=1, column=0, padx=10, pady=0)  # Add padding
-        self.regular_area_button.grid(row=2, column=0, padx=10, pady=5)  # Add padding
-        self.scroll_opener_button.grid(row=3, column=0, padx=10, pady=5)  # Add padding
+        self.valhalla_farm_button.grid(row=0, column=0, padx=10, pady=5, sticky="ew")  # Add padding
+        self.regular_area_button.grid(row=1, column=0, padx=10, pady=5, sticky="ew")  # Add padding
+        self.slot_machine_farm_button.grid(row=2, column=0, padx=10, pady=5, sticky="ew")  # Add padding
+        self.scroll_opener_button.grid(row=3, column=0, padx=10, pady=5, sticky="ew")  # Add padding
 
     def on_valhalla_farm_button_click(self):
         self.master.destroy()
@@ -56,7 +56,6 @@ class MainMenu(tk.Frame):
         app = ValhallaFarm(master=root)
         ## STYLE USING TKINTER TTK
         set_style()
-        
         app.mainloop()
 
     def on_slot_machine_farm_button_click(self):
@@ -65,7 +64,6 @@ class MainMenu(tk.Frame):
         app = SlotMachineFarm(master=root)
         ## STYLE USING TKINTER TTK
         set_style()
-        
         app.mainloop()
 
     def on_regular_area_button_click(self):
@@ -74,7 +72,6 @@ class MainMenu(tk.Frame):
         app = StandardAreaFarm(master=root)
         ## STYLE USING TKINTER TTK
         set_style()
-        
         app.mainloop()
     
     def on_scroll_opener_button_click(self):
@@ -83,7 +80,6 @@ class MainMenu(tk.Frame):
         app = ScrollOpenerBot(master=root)
         ## STYLE USING TKINTER TTK
         set_style()
-        
         app.mainloop()
 
 ## CREATE VALHALLA GUI
@@ -91,13 +87,17 @@ class ValhallaFarm(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.master.title("Pockie Ninja Bot - Valhalla Farm")
+        self.master.title(f"Pockie Ninja Bot - Valhalla Farm | v{VERSION}")
         self.master.geometry(VALHALLA_FARM_WINDOW_SIZE)
         self.master.resizable(False, False)
         self.create_widgets()
         self.bots = []
         self.threads = []
         center(self.master)
+        self.configure_window()
+
+    def configure_window(self):
+        self.master.attributes("-toolwindow", True)
 
     def update_difficulties(self, *args):
         # Reset var and delete all old options
@@ -144,20 +144,20 @@ class ValhallaFarm(tk.Frame):
         self.start_button = ttk.Button(self.master, text="Start", command=self.on_start_button_click)
         self.back_to_main_menu_button = ttk.Button(self.master, text="Back to Main Menu", command=self.back_to_main_menu)
 
-        self.username_label.grid(row=0, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.username_entry.grid(row=0, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.password_label.grid(row=1, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.password_entry.grid(row=1, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.dungeon_lvl_label.grid(row=2, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.dungeon_lvl_option_menu.grid(row=2, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.difficulty_option_label.grid(row=3, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.difficulty_option_menu.grid(row=3, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.legend_box_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.legend_box_checkbox.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.game_speed_label.grid(row=5, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.game_speed_slider.grid(row=5, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_label.grid(row=6, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_checkbox.grid(row=6, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.username_label.grid(row=0, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.username_entry.grid(row=0, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_label.grid(row=1, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_entry.grid(row=1, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.dungeon_lvl_label.grid(row=2, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.dungeon_lvl_option_menu.grid(row=2, column=1, sticky="e", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.difficulty_option_label.grid(row=3, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.difficulty_option_menu.grid(row=3, column=1, sticky="e", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.legend_box_label.grid(row=4, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.legend_box_checkbox.grid(row=4, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_label.grid(row=5, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_slider.grid(row=5, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_label.grid(row=6, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_checkbox.grid(row=6, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.start_button.grid(row=7, column=0, pady=STANDARD_PADDING_Y)
         self.back_to_main_menu_button.grid(row=7, column=1, pady=STANDARD_PADDING_Y)
 
@@ -178,7 +178,7 @@ class ValhallaFarm(tk.Frame):
         new_thread = threading.Thread(target=self.start_bot, daemon=True)
         self.threads.append(new_thread)
         new_thread.start()
-
+    
     def start_bot(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
@@ -228,7 +228,7 @@ class SlotMachineFarm(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.master.title("Pockie Ninja Bot - Slot Machine Farm")
+        self.master.title(f"Pockie Ninja Bot - Slot Machine Farm | v{VERSION}")
         self.master.geometry(SLOT_MACHINE_FARM_WINDOW_SIZE)
         self.master.resizable(False, False)
         self.create_widgets()
@@ -251,14 +251,14 @@ class SlotMachineFarm(tk.Frame):
         self.start_button = ttk.Button(self.master, text="Start", command=self.on_start_button_click)
         self.back_to_main_menu_button = ttk.Button(self.master, text="Back to Main Menu", command=self.back_to_main_menu)
 
-        self.username_label.grid(row=0, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.username_entry.grid(row=0, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.password_label.grid(row=1, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.password_entry.grid(row=1, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.game_speed_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.game_speed_slider.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_label.grid(row=5, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_checkbox.grid(row=5, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.username_label.grid(row=0, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.username_entry.grid(row=0, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_label.grid(row=1, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_entry.grid(row=1, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_label.grid(row=4, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_slider.grid(row=4, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_label.grid(row=5, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_checkbox.grid(row=5, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.start_button.grid(row=6, column=0, pady=STANDARD_PADDING_Y)
         self.back_to_main_menu_button.grid(row=6, column=1, pady=STANDARD_PADDING_Y)
     
@@ -315,13 +315,12 @@ class SlotMachineFarm(tk.Frame):
         check_exit_success = bot.main_loop()
         return check_exit_success
 
-
 ## CREATE STANDARD FARM GUI
 class StandardAreaFarm(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.master.title("Pockie Ninja Bot - Mob Farm")
+        self.master.title(f"Pockie Ninja Bot - Mob Farm | v{VERSION}")
         self.master.geometry(STANDARD_AREA_FARM_WINDOW_SIZE)
         self.master.resizable(False, False)
         self.create_widgets()
@@ -329,6 +328,10 @@ class StandardAreaFarm(tk.Frame):
         self.threads = []
         self.bot = False
         center(self.master)
+        self.configure_window()
+
+    def configure_window(self):
+        self.master.attributes("-toolwindow", True)
 
     def populate_area_names(self):
         area_names = [SMELTING_MOUNTAINS_AREA_NAME, EVENTIDE_BARRENS_AREA_NAME, CROSSROADS_AREA_NAME]
@@ -395,18 +398,18 @@ class StandardAreaFarm(tk.Frame):
         self.back_to_main_menu_button = ttk.Button(self, text="Back to Main Menu", command=self.back_to_main_menu)
 
         # Grid placement
-        self.username_label.grid(row=0, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.username_entry.grid(row=0, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.password_label.grid(row=1, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.password_entry.grid(row=1, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.area_option_label.grid(row=2, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.area_name_option_menu.grid(row=2, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.mob_option_label.grid(row=3, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.mob_name_option_menu.grid(row=3, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_label.grid(row=5, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_checkbox.grid(row=5, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.game_speed_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.game_speed_slider.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.username_label.grid(row=0, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.username_entry.grid(row=0, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_label.grid(row=1, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_entry.grid(row=1, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.area_option_label.grid(row=2, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.area_name_option_menu.grid(row=2, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.mob_option_label.grid(row=3, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.mob_name_option_menu.grid(row=3, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_label.grid(row=5, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_checkbox.grid(row=5, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_label.grid(row=4, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.game_speed_slider.grid(row=4, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.start_button.grid(row=6, column=0, pady=STANDARD_PADDING_Y)
         self.back_to_main_menu_button.grid(row=6, column=1, pady=STANDARD_PADDING_Y)
     
@@ -464,19 +467,22 @@ class StandardAreaFarm(tk.Frame):
         check_exit_success = bot.main_loop()
         return check_exit_success
 
-
 ## CREATE SCROLL OPENER GUI
 class ScrollOpenerBot(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.master.title("Pockie Ninja Bot - Scroll Opener")
+        self.master.title(f"Pockie Ninja Bot - Scroll Opener | v{VERSION}")
         self.master.geometry(SCROLL_BOT_WINDOW_SIZE)
         self.master.resizable(False, False)
         self.create_widgets()
         self.bots = []
         self.threads = []
         center(self.master)
+        self.configure_window()
+
+    def configure_window(self):
+        self.master.attributes("-toolwindow", True)
 
     def create_widgets(self):
         self.username_label = ttk.Label(self.master, text="Username:")
@@ -484,7 +490,7 @@ class ScrollOpenerBot(tk.Frame):
         self.password_label = ttk.Label(self.master, text="Password:")
         self.password_entry = ttk.Entry(self.master, show="*")
         ## SET DUNGEON LEVEL AS A OPTION MENU
-        self.scroll_rank_options = ["C", "B", "A", "S"]
+        self.scroll_rank_options = ["S", "A", "B", "C"]
         self.scroll_rank_label = ttk.Label(self.master, text="Scroll Rank:")
         self.scroll_rank_str_var = tk.StringVar()
         self.scroll_rank_str_var.set(self.scroll_rank_options[0])
@@ -496,14 +502,14 @@ class ScrollOpenerBot(tk.Frame):
         self.start_button = ttk.Button(self.master, text="Start", command=self.on_start_button_click)
         self.back_to_main_menu_button = ttk.Button(self.master, text="Back to Main Menu", command=self.back_to_main_menu)
 
-        self.username_label.grid(row=0, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.username_entry.grid(row=0, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.password_label.grid(row=1, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.password_entry.grid(row=1, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.scroll_rank_label.grid(row=2, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.scroll_rank_option_menu.grid(row=2, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_label.grid(row=4, column=0, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
-        self.headless_checkbox.grid(row=4, column=1, sticky="w", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.username_label.grid(row=0, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.username_entry.grid(row=0, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_label.grid(row=1, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.password_entry.grid(row=1, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.scroll_rank_label.grid(row=2, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.scroll_rank_option_menu.grid(row=2, column=1, sticky="e", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_label.grid(row=4, column=0, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
+        self.headless_checkbox.grid(row=4, column=1, sticky="ew", padx=STANDARD_PADDING_X, pady=STANDARD_PADDING_Y)
         self.start_button.grid(row=5, column=0, pady=STANDARD_PADDING_Y)
         self.back_to_main_menu_button.grid(row=5, column=1, pady=STANDARD_PADDING_Y)
 
