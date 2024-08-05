@@ -417,7 +417,7 @@ class ScrollOpenerBot(tk.Frame):
         self.password_label=ttk.Label(self, text="Password:")
         self.password_entry=ttk.Entry(self, show="*")
         ## SET DUNGEON LEVEL AS A OPTION MENU
-        self.scroll_rank_options=["S-Rank Secret Scroll", "A-Rank Secret Scroll", "B-Rank Secret Scroll", "C-Rank Secret Scroll", "Special Trasure Jar"]
+        self.scroll_rank_options=["S-Rank Secret Scroll", "A-Rank Secret Scroll", "B-Rank Secret Scroll", "C-Rank Secret Scroll", "Special Treasure Jar"]
         self.scroll_rank_label=ttk.Label(self, text="Scroll Rank:")
         self.scroll_rank_str_var=tk.StringVar()
         self.scroll_rank_str_var.set(self.scroll_rank_options[0])

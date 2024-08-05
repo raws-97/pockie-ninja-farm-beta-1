@@ -3,7 +3,7 @@ from datetime import datetime
 import time
 import requests
 from src import *
-import os
+import random
 
 WINDOW_WAIT_STANDARD_DELAY = 2
 ADDITIONAL_SLEEP_TIME = 2
@@ -557,7 +557,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
     def start_farm(self):
         max_tries = MAX_SLOT_MACHINE_TRIES
         try_count = 0
-        wait_time_multiplier = 2
+        wait_time_multiplier = round(random.uniform(1,1.5),2)
 
         ## CHECK IF SLOT MACHINE STILL OPEN
         if self.page.locator(f"img[{SLOT_MACHINE_FRAME_OPEN}]").count() == 0:
@@ -574,7 +574,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
                 if int(char_hp.split(" ")[0]) > 0:
                     self.win_fight += 1
                 self.page.get_by_role("button", name="Close").click()
-                wait_time_multiplier = 0.5
+                wait_time_multiplier / 0.5
                 self.count_fight += 1
                 print(f"FIGHT NUMBER: {self.count_fight}  ({self.win_fight} WIN)")
                 self.calculate_fight_time()
@@ -582,6 +582,7 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
                 break
             time.sleep(WINDOW_WAIT_STANDARD_DELAY*wait_time_multiplier)
             try_count += 1
+            wait_time_multiplier = round(random.uniform(1,1.5),2)
         if(try_count >= max_tries):
             print("MAX WAITING TIME EXCEEDED...")
             self.page.close()
@@ -651,7 +652,7 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
                     self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
                     time.sleep(0.2)
                     self.page.get_by_text("Use", exact=True).click()
-                    time.sleep(0.3)
+                    time.sleep(0.4)
                     self.tries += 1
                     if self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").count() == 0:
                         print(f"You only have 1 {self.scroll_rank} Rank Scroll left.")
