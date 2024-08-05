@@ -491,22 +491,17 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
                 print("OPENED BROWSER")
                 self.page = self.browser.new_page()
                 self.page.goto("https://pockieninja.online/")
-                self.page.evaluate(JAVASCRIPT_CODE_SH)
                 print("OPENED LINK")
-                self.page.evaluate(JAVASCRIPT_SPEED_CONFIG.replace("1.0", self.game_speed))
                 print(f"GAME SPEED : {self.game_speed}")
+                self.page.evaluate(JAVASCRIPT_CODE_SH)
                 self.relog()
                 self.close_fight_page()
                 self.close_interface()
                 self.check_if_on_cross_road()
+                print("START FIGHT")
                 self.start_farm_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 while True:
-                    time.sleep(WINDOW_WAIT_STANDARD_DELAY)
                     self.start_farm()
-                    self.count_fight += 1
-                    print(f"FIGHT NUMBER: {self.count_fight}  ({self.win_fight} WIN)")
-                    self.calculate_fight_time()
-                    self.calculate_total_time()
         except (Exception) as e:
             print("EXCEPTION: ", e)
             if "Timeout" in str(e):
@@ -562,26 +557,35 @@ class PockieNinjaSlotMachineFarm(PockieNinjaFarmBot):
     def start_farm(self):
         max_tries = MAX_SLOT_MACHINE_TRIES
         try_count = 0
+        wait_time_multiplier = 2
 
         ## CHECK IF SLOT MACHINE STILL OPEN
         if self.page.locator(f"img[{SLOT_MACHINE_FRAME_OPEN}]").count() == 0:
             self.page.locator(f"img[{SLOT_MACHINE_ICON_SRC}]").click()        
         self.page.locator(f"img[{SLOT_MACHINE_CHALLENGE_BTN_SRC}]").locator('..').click()
         self.start_fight_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        time.sleep(WINDOW_WAIT_STANDARD_DELAY)
+        self.page.evaluate(JAVASCRIPT_SPEED_CONFIG.replace("1.0", self.game_speed))
         ## CHECK IF CANVAS BATLLE STILL OPEN
         while (try_count < max_tries):
             if (self.page.get_by_role("button", name="Close").count() > 0):
+                self.page.evaluate(JAVASCRIPT_SPEED_CONFIG)
                 char_hp = self.page.locator("div[class='fight__stat-value']").nth(0).text_content()
                 if int(char_hp.split(" ")[0]) > 0:
                     self.win_fight += 1
                 self.page.get_by_role("button", name="Close").click()
+                wait_time_multiplier = 0.5
+                self.count_fight += 1
+                print(f"FIGHT NUMBER: {self.count_fight}  ({self.win_fight} WIN)")
+                self.calculate_fight_time()
+                self.calculate_total_time()
                 break
-            time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
+            time.sleep(WINDOW_WAIT_STANDARD_DELAY*wait_time_multiplier)
             try_count += 1
         if(try_count >= max_tries):
             print("MAX WAITING TIME EXCEEDED...")
             self.page.close()
-        time.sleep(WINDOW_WAIT_STANDARD_DELAY*2)
+        time.sleep(WINDOW_WAIT_STANDARD_DELAY*wait_time_multiplier)
         
 
 ################################################################################################################################
@@ -593,16 +597,19 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
         self.scroll_rank = scroll_rank
         self.total_scroll = 0
         self.tries = 0
+        self.obtained_item = ""
         self.flag_first_time = True
 
-        if self.scroll_rank == "C":
+        if self.scroll_rank == "C-Rank Secret Scroll":
             self.scroll_src = C_RANK_SCROL_SRC
-        elif self.scroll_rank == "B":
+        elif self.scroll_rank == "B-Rank Secret Scroll":
             self.scroll_src = B_RANK_SCROL_SRC
-        elif self.scroll_rank == "A":
+        elif self.scroll_rank == "A-Rank Secret Scroll":
             self.scroll_src = A_RANK_SCROL_SRC
-        elif self.scroll_rank == "S":
+        elif self.scroll_rank == "S-Rank Secret Scroll":
             self.scroll_src = S_RANK_SCROLL_SRC
+        elif self.scroll_rank == "Special Treasure Jar":
+            self.scroll_src = SPECIAL_TREASURE_JAR_SRC
 
     def main_loop(self):
         try:
@@ -639,6 +646,7 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
                 else:
                     self.total_scroll = int(self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").text_content().replace("x",""))
                     if (self.page.get_by_role("button", name="Close").count() > 0):
+                        self.obtained_item = self.page.get_by_text("You obtained").text_content()
                         self.page.get_by_role("button", name="Close").click()
                     self.page.locator(f"img[{self.scroll_src}]").locator("..").click(button="right")
                     time.sleep(0.2)
@@ -650,7 +658,7 @@ class PockieNinjaScrollOpener(PockieNinjaFarmBot):
                         break
                     current_scroll = int(self.page.locator(f"img[{self.scroll_src}]").locator("..").get_by_text("x").text_content().replace("x",""))
                     if current_scroll < self.total_scroll:
-                        print(f"Scroll {self.scroll_rank} in bag : {current_scroll} (x{self.tries})")
+                        print(f"Scroll {self.scroll_rank} in bag : {current_scroll} (x{self.tries}) [{self.obtained_item}]")
                         self.tries = 0
 
             if self.page.locator(f"img[{self.scroll_src}]").count() == 0:

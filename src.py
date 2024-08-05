@@ -110,6 +110,7 @@ C_RANK_SCROL_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.c
 B_RANK_SCROL_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/tasks/master/36.png'"
 A_RANK_SCROL_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/tasks/master/37.png'"
 S_RANK_SCROLL_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/tasks/master/38.png'"
+SPECIAL_TREASURE_JAR_SRC="src='https://pockie-ninja-assets.sfo3.cdn.digitaloceanspaces.com/pockie-ninja-assets/public/icons/items/etc/293.png'"
 
 
 #SPEEDHACK JAVASCRIPT
